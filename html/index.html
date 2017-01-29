@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hi</title>
+  </head>
+  <body>
+    <h1>Hello</h1>
+
+    <script>
+      const signup = () => fetch('/users/signup', {
+        method: 'POST',
+        headers: new Headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify({
+          username: 'lakesare',
+          password: 'hmhmhm',
+          name: 'Jane'
+        })
+      });
+      // OR
+      const signin = () => fetch('/users/signin', {
+        method: 'POST',
+        headers: new Headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify({
+          username: 'lakesare',
+          password: 'hmhmhm',
+        })
+      });
+
+      signin()
+        .then(response => response.json())
+        .then((response) => {
+          const userClaims = atob(response.token.split('.')[1]);
+          console.log({ userClaims });
+          localStorage.setItem('jwt', response.token);
+        })
+
+      const getSecretInfo = () => fetch('/secret_info', {
+        headers: new Headers({
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem('jwt')
+        })
+      });
+
+      // now server can give us this info,
+      // 1. we give server password and username
+      // 2. server validates them, and sends us a signed token
+      // 3. we send it back, instead of sending password again
+      // 4. and server knows he's the one who sent us this token, because it's signed with its secret
+      getSecretInfo()
+        .then((response) => response.json())
+        .then((response) => console.log(response));
+    </script>
+
+  </body>
+</html>
